@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.kafka.KafkaException;
 
 import java.time.Instant;
 
@@ -32,8 +33,13 @@ public class TransferController {
                 .build();
 
         log.info("==>kafka-topic[transfer-requests] Отправка события в Kafka: {}", event);
-        producerService.send(event);
-        log.info("<==[HTTP POST=/api/transfer][202]Возвращаем HTTP 202: принято в обработку");
-        return ResponseEntity.accepted().body("принято в обработку"); // HTTP 202
+        try {
+            producerService.send(event);
+            log.info("<==[HTTP POST=/api/transfer][202]Возвращаем HTTP 202: принято в обработку");
+            return ResponseEntity.accepted().body("принято в обработку"); // HTTP 202
+        } catch (KafkaException e) {
+            log.error("❌ Kafka недоступна, возвращаем 503", e);
+            return ResponseEntity.status(503).body("Kafka недоступна. Повторите попытку позже.");
+        }
     }
 }

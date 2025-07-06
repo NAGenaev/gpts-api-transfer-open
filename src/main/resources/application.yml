@@ -11,10 +11,10 @@ spring:
 
 server:
   port: 8081
-  tomcat:
-    threads:
-      max: 500
-    accept-count: 1000
+  #tomcat:
+    #threads:
+      #max: 500
+    #accept-count: 1000
 
 logging:
   level:
