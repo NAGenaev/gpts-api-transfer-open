@@ -1,0 +1,30 @@
+spring:
+  kafka:
+    bootstrap-servers: 192.168.0.144:9092 # замени на IP контейнера с Kafka в Ubuntu
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    properties:
+      spring.json.add.type.headers: false
+    topics:
+      transfer-requests: transfer-requests
+
+server:
+  port: 8081
+  tomcat:
+    threads:
+      max: 500
+    accept-count: 1000
+
+logging:
+  level:
+    root: INFO
+    com.gpts: DEBUG # только твои пакеты — можно видеть подробные логи
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
