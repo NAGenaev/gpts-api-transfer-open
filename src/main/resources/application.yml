@@ -4,6 +4,12 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 0
+      properties:
+        max.block.ms: 3000               # <== максимальное время блокировки при send
+        metadata.max.age.ms: 1000        # <== как часто обновлять метаданные топика
+        request.timeout.ms: 3000         # <== таймаут сетевого запроса
+        delivery.timeout.ms: 3000        # <== полный лимит времени доставки
     properties:
       spring.json.add.type.headers: false
     topics:
