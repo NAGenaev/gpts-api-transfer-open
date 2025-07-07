@@ -23,17 +23,19 @@ public class TransferProducerService {
     private String topic;
 
     public void send(TransferEvent event) {
+        String transactionId = event.getTransactionId().toString();
+
         try {
             SendResult<String, TransferEvent> result = kafkaTemplate.send(topic, event).get(); // <== блокирующий вызов
             RecordMetadata metadata = result.getRecordMetadata();
-            log.info("✅ Успешно отправлено в Kafka: topic={}, partition={}, offset={}",
-                    metadata.topic(), metadata.partition(), metadata.offset());
+            log.info("ID:[{}] ✅ Успешно отправлено в Kafka: topic={}, partition={}, offset={}",
+                    transactionId, metadata.topic(), metadata.partition(), metadata.offset());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // важно: корректно сбросить флаг
-            log.error("⛔ Поток был прерван при отправке в Kafka", e);
+            log.error("ID:[{}] ⛔ Поток был прерван при отправке в Kafka", transactionId, e);
             throw new KafkaException("Поток был прерван при отправке события в Kafka", e);
         } catch (ExecutionException e) {
-            log.error("❌ Ошибка при отправке в Kafka", e.getCause());
+            log.error("ID:[{}] ❌ Ошибка при отправке в Kafka", transactionId, e.getCause());
             throw new KafkaException("Ошибка при отправке события в Kafka", e.getCause());
         }
     }

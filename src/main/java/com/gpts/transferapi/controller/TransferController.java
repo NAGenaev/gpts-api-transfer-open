@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.kafka.KafkaException;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -22,24 +23,32 @@ public class TransferController {
 
     @PostMapping
     public ResponseEntity<String> createTransfer(@Valid @RequestBody TransferRequest request) {
-        log.info("==>[HTTP POST=/api/transfer]Получен запрос на перевод: {}", request);
+        UUID transactionId = request.getTransactionId() != null
+                ? request.getTransactionId()
+                : UUID.randomUUID();
 
-        TransferEvent event = TransferEvent.builder()
-                .fromUserId(request.getFromUserId())
-                .toUserId(request.getToUserId())
-                .amount(request.getAmount())
-                .currency(request.getCurrency())
-                .createdAt(Instant.now())
-                .build();
 
-        log.info("==>kafka-topic[transfer-requests] Отправка события в Kafka: {}", event);
         try {
+            log.info("ID:[{}] ==> [HTTP POST=/api/transfer] Запрос на перевод: {}", transactionId, request);
+
+            TransferEvent event = TransferEvent.builder()
+                    .transactionId(transactionId)
+                    .fromUserId(request.getFromUserId())
+                    .toUserId(request.getToUserId())
+                    .amount(request.getAmount())
+                    .currency(request.getCurrency())
+                    .createdAt(Instant.now())
+                    .build();
+
+            log.info("ID:[{}] 📤 Отправка события в Kafka: {}", transactionId, event);
             producerService.send(event);
-            log.info("<==[HTTP POST=/api/transfer][202]Возвращаем HTTP 202: принято в обработку");
-            return ResponseEntity.accepted().body("принято в обработку"); // HTTP 202
+
+            log.info("ID:[{}] <== [HTTP POST=/api/transfer] HTTP 202 Принято в обработку", transactionId);
+            return ResponseEntity.accepted().body("Принято в обработку. transactionId: " + transactionId);
+
         } catch (KafkaException e) {
-            log.error("❌ Kafka недоступна, возвращаем 503", e);
-            return ResponseEntity.status(503).body("Kafka недоступна. Повторите попытку позже.");
+            log.error("ID:[{}] ❌ Kafka недоступна", transactionId, e);
+            return ResponseEntity.status(503).body("Kafka недоступна. Повторите позже. transactionId: " + transactionId);
         }
     }
 }
