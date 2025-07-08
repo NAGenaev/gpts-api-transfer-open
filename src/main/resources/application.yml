@@ -34,3 +34,6 @@ management:
     web:
       exposure:
         include: health, info
+
+security:
+  api-key: super-secret-key
