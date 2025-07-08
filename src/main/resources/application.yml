@@ -15,12 +15,18 @@ spring:
     topics:
       transfer-requests: transfer-requests
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+    display-request-duration: true
+    doc-expansion: none
+
 server:
   port: 8081
-  #tomcat:
-    #threads:
-      #max: 500
-    #accept-count: 1000
 
 logging:
   level:
