@@ -44,7 +44,10 @@ management:
   endpoints:
     web:
       exposure:
-        include: health, info
+        include: health, info, metrics, prometheus
+  metrics:
+    tags:
+      application: gpts-api-transfer-open
 
 security:
   api-key: eyJhbGciOiJIUzI1NiJ9.eyJhcGlJZCI6ImdwdHMiLCJleHAiOjE3MDAwMDAwMDB9.W_kmzcvOSb2xXNgX65-VEukf-mR_EEO7m34eCIxxuVE

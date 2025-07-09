@@ -2,6 +2,7 @@ package com.gpts.transferapi.controller;
 
 import com.gpts.transferapi.dto.TransferRequest;
 import com.gpts.transferapi.event.TransferEvent;
+import com.gpts.transferapi.metrics.MetricsService;
 import com.gpts.transferapi.service.TransferProducerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,17 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 
+
+@RequiredArgsConstructor
 @Slf4j
 @RestController
 @RequestMapping("/api/transfer")
-@RequiredArgsConstructor
+
 public class TransferController {
 
     private final TransferProducerService producerService;
+    private final MetricsService metricsService;
+
     @Operation(summary = "Создать перевод между пользователями")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Создано событие перевода"),
@@ -54,14 +59,15 @@ public class TransferController {
 
             log.info("ID:[{}] 📤 Отправка события в Kafka: {}", transactionId, event);
             producerService.send(event);
-
             log.info("ID:[{}] <== [HTTP POST=/api/transfer] HTTP 201 - Создано событие перевода.", transactionId);
+            metricsService.incrementSuccessCounter();
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body("Создано событие перевода. transactionId: " + transactionId);
 
         } catch (KafkaException e) {
             log.error("ID:[{}] ❌ Kafka недоступна", transactionId, e);
+            metricsService.incrementErrorCounter();
             return ResponseEntity.status(503).body("Kafka недоступна. Повторите позже. transactionId: " + transactionId);
         }
     }
