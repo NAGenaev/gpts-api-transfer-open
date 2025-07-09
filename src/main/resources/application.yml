@@ -26,7 +26,12 @@ springdoc:
     doc-expansion: none
 
 server:
-  port: 8081
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: classpath:gpts.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
 
 logging:
   level:
@@ -42,4 +47,4 @@ management:
         include: health, info
 
 security:
-  api-key: super-secret-key
+  api-key: eyJhbGciOiJIUzI1NiJ9.eyJhcGlJZCI6ImdwdHMiLCJleHAiOjE3MDAwMDAwMDB9.W_kmzcvOSb2xXNgX65-VEukf-mR_EEO7m34eCIxxuVE
