@@ -34,6 +34,8 @@ server:
     key-store-type: PKCS12
 
 logging:
+  file:
+    name: C:/gpts/gpts-logs/app.log
   level:
     root: INFO
     com.gpts: DEBUG # только твои пакеты — можно видеть подробные логи
