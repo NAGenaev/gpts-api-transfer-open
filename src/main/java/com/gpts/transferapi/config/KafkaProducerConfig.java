@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.core.*;
+import org.springframework.boot.ssl.SslBundles;
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,10 +17,11 @@ import java.util.Map;
 public class KafkaProducerConfig {
 
     private final KafkaProperties kafkaProperties;
+    private final SslBundles sslBundles;
 
     @Bean
     public ProducerFactory<String, TransferEvent> producerFactory() {
-        Map<String, Object> config = new HashMap<>(kafkaProperties.buildProducerProperties());
+        Map<String, Object> config = new HashMap<>(kafkaProperties.getProducer().buildProperties(sslBundles));
         return new DefaultKafkaProducerFactory<>(config);
     }
 
@@ -27,3 +30,4 @@ public class KafkaProducerConfig {
         return new KafkaTemplate<>(producerFactory());
     }
 }
+

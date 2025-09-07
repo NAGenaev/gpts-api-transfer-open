@@ -1,15 +1,19 @@
 spring:
   kafka:
-    bootstrap-servers: 192.168.0.144:9092 # замени на IP контейнера с Kafka в Ubuntu
     producer:
+      bootstrap-servers: 192.168.0.144:9092
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      retries: 0
+      retries: 5
       properties:
+        spring.json.add.type.headers: false
+        spring.json.trusted.packages: "*"
         max.block.ms: 3000               # <== максимальное время блокировки при send
         metadata.max.age.ms: 1000        # <== как часто обновлять метаданные топика
         request.timeout.ms: 3000         # <== таймаут сетевого запроса
         delivery.timeout.ms: 3000        # <== полный лимит времени доставки
+        enable.idempotence: true
+        transaction.id: gpts-transfer-api-tx
     properties:
       spring.json.add.type.headers: false
     topics:
@@ -34,8 +38,8 @@ server:
     key-store-type: PKCS12
 
 logging:
-  file:
-    name: C:/gpts/gpts-logs/app.log
+  #file:
+  #  name: C:/gpts/gpts-logs/app.log
   level:
     root: INFO
     com.gpts: DEBUG # только твои пакеты — можно видеть подробные логи
